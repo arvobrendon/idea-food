@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 
-from coreapp.forms import UserForm, RestaurantForm
+from coreapp.forms import AccountForm, UserForm, RestaurantForm
 
 # Create your views here.
 def home(request):
@@ -11,7 +11,7 @@ def home(request):
 
 @login_required(login_url='/restaurant/sign_in/')
 def restaurant_home(request):
-  return render(request, 'restaurant/home.html', {})
+  return redirect(restaurant_order)
 
 def restaurant_sign_up(request):
   user_form = UserForm()
@@ -38,3 +38,34 @@ def restaurant_sign_up(request):
     "user_form": user_form,
     "restaurant_form": restaurant_form
   })
+
+@login_required(login_url='/restaurant/sign_in/')
+def restaurant_account(request):
+
+  if request.method == "POST":
+    account_form = AccountForm(request.POST, instance=request.user)
+    restaurant_form = RestaurantForm(request.POST, request.FILES, instance=request.user.restaurant)
+
+    if account_form.is_valid() and restaurant_form.is_valid():
+      account_form.save()
+      restaurant_form.save()
+
+  account_form = AccountForm(instance=request.user)
+  restaurant_form = RestaurantForm(instance=request.user.restaurant)
+  
+  return render(request, 'restaurant/account.html', {
+    "account_form": account_form,
+    "restaurant_form": restaurant_form
+  })
+
+@login_required(login_url='/restaurant/sign_in/')
+def restaurant_meal(request):
+  return render(request, 'restaurant/meal.html', {})
+
+@login_required(login_url='/restaurant/sign_in/')
+def restaurant_order(request):
+  return render(request, 'restaurant/order.html', {})
+
+@login_required(login_url='/restaurant/sign_in/')
+def restaurant_report(request):
+  return render(request, 'restaurant/report.html', {})

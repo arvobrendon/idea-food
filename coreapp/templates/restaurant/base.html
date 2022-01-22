@@ -1,0 +1,29 @@
+{% extends 'restaurant/layout.html' %}
+
+{% block sidebar %}
+
+<div class="text-center mt-4">
+  <img src="{{ request.user.restaurant.logo.url }}" class="rounded-circle" width="80" height="80" alt="">
+  <br><br>
+  <h5>{{ request.user.get_full_name }}</h5>
+  <h6>{{ request.user.get_restaurant.name }}</h6>
+</div>
+
+<hr>
+
+<div class="list-group">
+  <span class="text-uppercase">Dashboard</span>
+
+  <a href="{% url 'restaurant_meal' %}" class="list-group-item">Meals</a>
+  <a href="{% url 'restaurant_order' %}" class="list-group-item">Orders</a>
+  <a href="{% url 'restaurant_report' %}" class="list-group-item">Report</a>
+
+  <span class="text-uppercase">Profile</span>
+  <a href="{% url 'restaurant_account' %}" class="list-group-item">Account</a>
+</div>
+
+<div class="text-center my-3 mx-3">
+  <a href="{% url 'restaurant_sign_out' %}" class="btn btn-warning btn-block">Logout</a>
+</div>
+
+{% endblock %}
