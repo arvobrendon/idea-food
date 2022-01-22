@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'coreapp',
     'cloudinary',
     'oauth2_provider',
-    'corsheaders',
     'bootstrap4',
 ]
 
@@ -52,7 +51,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'eatsbrendon.urls'
