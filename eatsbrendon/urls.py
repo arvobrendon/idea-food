@@ -14,13 +14,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.contrib.auth import views as auth_views
-from coreapp import views
+from coreapp import views, apis
+from rest_framework.routers import DefaultRouter
 
-urlpatterns = [
+
+default_router = DefaultRouter(trailing_slash=False)
+default_router.register("api/customer-auth", apis.CustomerAuthViewSet, basename="customer_auth")
+
+urlpatterns = default_router.urls + [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
+    path('hello/', apis.HelloView.as_view(), name='hello'),
 
     # Web View - Restaurant
     path('restaurant/sign_in/', auth_views.LoginView.as_view(template_name='restaurant/sign_in.html'), name='restaurant_sign_in'),
@@ -30,9 +36,31 @@ urlpatterns = [
 
     path('restaurant/account/', views.restaurant_account, name='restaurant_account'),
     path('restaurant/meal/', views.restaurant_meal, name='restaurant_meal'),
+    path('restaurant/meal/add', views.restaurant_add_meal, name='restaurant_add_meal'),
+    path('restaurant/meal/edit/<int:meal_id>', views.restaurant_edit_meal, name='restaurant_edit_meal'),
     path('restaurant/order/', views.restaurant_order, name='restaurant_order'),
     path('restaurant/report/', views.restaurant_report, name='restaurant_report'),
 
 
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    path('api/restaurant/order/notification/<last_request_time>/', apis.restaurant_order_notification),
+
+    #APIS for CUSTOMERS
+    path('api/customer/restaurants/', apis.customer_get_restaurants),
+    path('api/customer/meals/<int:restaurant_id>', apis.customer_get_meals),
+    path('api/customer/order/add/', apis.customer_add_order),
+    path('api/customer/order/latest/', apis.customer_get_latest_order),
+    path('api/customer/order/latest_status/', apis.customer_get_latest_order_status),
+    path('api/customer/driver/location/', apis.customer_get_driver_location),
+    path('api/customer/payment_intent/', apis.create_payment_intent),
+
+    # APIS for DRIVERS
+    path('api/driver/order/ready/', apis.driver_get_ready_orders),
+    path('api/driver/order/pick/', apis.driver_pick_order),
+    path('api/driver/order/latest/', apis.driver_get_latest_order),
+    path('api/driver/order/complete/', apis.driver_complete_order),
+    path('api/driver/revenue/', apis.driver_get_revenue),
+    path('api/driver/location/update/', apis.driver_update_location),
+    path('api/driver/profile/', apis.driver_get_profile),
+    path('api/driver/profile/update/', apis.driver_update_profile),
 ]

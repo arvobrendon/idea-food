@@ -38,10 +38,36 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'coreapp',
+    'rest_framework',
+    'rest_framework.authtoken',
     'cloudinary',
     'oauth2_provider',
     'bootstrap4',
 ]
+
+REST_FRAMEWORK = {
+    # Default renderer classes for Rest framework
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ],
+    # 'Accept' header based versioning
+    # http://www.django-rest-framework.org/api-guide/versioning/
+    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.AcceptHeaderVersioning",
+    "DEFAULT_VERSION": "1.0",
+    "ALLOWED_VERSIONS": ["1.0"],
+    "VERSION_PARAMETER": "version",
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
+    "DEFAULT_THROTTLE_CLASSES": ("rest_framework.throttling.AnonRateThrottle",),
+    "DEFAULT_THROTTLE_RATES": {"anon": "10000/day"},
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        'rest_framework.authentication.TokenAuthentication',
+        # Mainly used for api debug.
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -139,6 +165,8 @@ cloudinary.config(
   api_key = "459225256457161", 
   api_secret = "_XiBdcEEfZPoMu5RsqEcU42yR8Q" 
 )
+
+STRIPE_API_KEY = 'sk_test_51KL7snC8dQ8rqMwBWmWMuUheBmpweritBNJR3DqOxFBtcEIsvayUhelqucvhO57fQFJasYHZIpsyy2iIojJQHjUz00km1Effvc'
 
 # Configure Django app for Heroku
 import django_heroku

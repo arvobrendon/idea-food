@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 
-from coreapp.forms import AccountForm, UserForm, RestaurantForm
+from coreapp.forms import AccountForm, UserForm, RestaurantForm, MealForm
+from coreapp.models import Meal, Order
 
 # Create your views here.
 def home(request):
@@ -60,11 +61,56 @@ def restaurant_account(request):
 
 @login_required(login_url='/restaurant/sign_in/')
 def restaurant_meal(request):
-  return render(request, 'restaurant/meal.html', {})
+  meals = Meal.objects.filter(restaurant=request.user.restaurant).order_by("-id")
+  return render(request, 'restaurant/meal.html', {
+    "meals": meals
+  })
+
+@login_required(login_url='/restaurant/sign_in/')
+def restaurant_add_meal(request):
+
+  if request.method == "POST":
+    meal_form = MealForm(request.POST, request.FILES)
+
+    if meal_form.is_valid():
+      meal = meal_form.save(commit=False)
+      meal.restaurant = request.user.restaurant
+      meal.save()
+
+  meal_form = MealForm()  
+  return render(request, 'restaurant/add_meal.html', {
+    "meal_form": meal_form
+  })
+
+@login_required(login_url='/restaurant/sign_in/')
+def restaurant_edit_meal(request, meal_id):
+
+  if request.method == "POST":
+    meal_form = MealForm(request.POST, request.FILES, instance=Meal.objects.get(id=meal_id))
+
+    if meal_form.is_valid():
+      meal_form.save()
+      return redirect(restaurant_meal)
+
+  meal_form = MealForm(instance=Meal.objects.get(id=meal_id))
+  return render(request, 'restaurant/edit_meal.html', {
+    "meal_form": meal_form
+  })
 
 @login_required(login_url='/restaurant/sign_in/')
 def restaurant_order(request):
-  return render(request, 'restaurant/order.html', {})
+  if request.method == "POST":
+    order = Order.objects.get(id=request.POST["id"])
+
+    if order.status == Order.COOKING:
+      order.status = Order.READY
+      order.save()
+
+  orders = Order.objects.filter(restaurant = request.user.restaurant).order_by("-id")
+  return render(request, 'restaurant/order.html', {
+    "orders": orders
+  })
+
 
 @login_required(login_url='/restaurant/sign_in/')
 def restaurant_report(request):
